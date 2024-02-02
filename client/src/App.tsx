@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { Rant } from "./Rant";
+import { pageBg } from "./style";
 
 export type RantData = {
     date: number;
     text: Array<RantLineData>;
     tags: Array<string>;
+    author: string
 };
 
 export type RantLineData = {
@@ -28,7 +30,7 @@ function App() {
     return (
         <div
             style={{
-                backgroundColor: "#111111",
+                backgroundColor: pageBg,
                 width: "100vw",
                 minHeight: "100vh",
             }}

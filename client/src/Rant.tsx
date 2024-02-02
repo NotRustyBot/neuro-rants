@@ -2,9 +2,11 @@ import { useState } from "react";
 import { RantData } from "./App";
 import { RantHead } from "./RantHead";
 import { RantLine } from "./RantLine";
+import { headColor, headColorDark } from "./style";
 
 type Params = {
     rant: RantData;
+    approvable?: boolean
 };
 
 export function Rant(params: Params) {
@@ -13,7 +15,7 @@ export function Rant(params: Params) {
     return (
         <div
             style={{
-                background: "#222f2f",
+                background: headColor,
                 borderRadius: 20,
                 overflow: "hidden",
                 boxShadow: hover ? "2px 2px 4px rgba(155, 255, 255, 0.5)" : "2px 2px 0px rgba(55, 155, 155, 0.3)",
@@ -29,7 +31,7 @@ export function Rant(params: Params) {
             <RantHead rant={rant} />
             <div
                 style={{
-                    background: "#222525",
+                    background: headColorDark,
                     padding: 20,
                     fontSize: 18,
                     color: "#ffffff",
@@ -44,7 +46,7 @@ export function Rant(params: Params) {
                         top: -20,
                         left: -5,
                         fontFamily: "Arial",
-                        color: "#222525",
+                        color: headColorDark,
                         textShadow: "3px 3px 0px #ffffff33"
                     }}
                 >
