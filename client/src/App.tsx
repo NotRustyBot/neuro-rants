@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Rant } from "./Rant";
 import { pageBg } from "./style";
+import { origin } from "./util";
 
 export type RantData = {
     date: number;
     text: Array<RantLineData>;
     tags: Array<string>;
-    author: string
+    author: string,
+    id: string | undefined
 };
 
 export type RantLineData = {
@@ -19,7 +21,7 @@ function App() {
     const [rants, setRants] = useState([] as Array<RantData>);
 
     useEffect(() => {
-        fetch(window.location.origin + "/data.json").then((r) =>
+        fetch(origin() + "/data.json").then((r) =>
             r.json().then((d: Array<RantData>) => {
                 setRants(d);
                 console.log(`got ${d.length} rants`);

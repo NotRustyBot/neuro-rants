@@ -4,14 +4,14 @@ import { Rant } from "./Rant";
 import { NewRantLine } from "./NewRantLine";
 import { inputStyle, pageBg } from "./style";
 import { RantData } from "./App";
-import { disclaimerTexts, saveToken, speakerOptions } from "./util";
+import { disclaimerTexts, origin, saveToken, speakerOptions } from "./util";
 import IconedButton from "./IconedButton";
 import { faCheck, faLock, faPlus, faRepublican, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
 import { useAuthContext } from "./AuthContext";
 
 function NewRant() {
-    const [newRant, setNewRant] = useState({ date: 0, tags: [], text: [{ speaker: speakerOptions[0], text: "" }], author: "" } as RantData);
+    const [newRant, setNewRant] = useState({ date: 0, tags: [], text: [{ speaker: speakerOptions[0], text: "" }], author: "", id: undefined } as RantData);
     const { authToken, updateAuthToken } = useAuthContext();
     const post = () => {
         const unauth = () => {
@@ -25,7 +25,7 @@ function NewRant() {
             }, 500);
         };
         if (authToken) {
-            fetch("http://localhost:3000/new", {
+            fetch(origin() + "/new", {
                 method: "POST",
                 body: JSON.stringify({ ...newRant, author: authToken }),
                 headers: {

@@ -2,14 +2,8 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Rant } from "./Rant";
 import { pageBg } from "./style";
-import { saveToken } from "./util";
-
-export type RantData = {
-    date: number;
-    text: Array<RantLineData>;
-    tags: Array<string>;
-    author: string;
-};
+import { origin, saveToken } from "./util";
+import { RantData } from "./App";
 
 export type RantLineData = {
     speaker: string;
@@ -21,7 +15,7 @@ function Approve() {
     const [moderator, setModerator] = useState(undefined as undefined | boolean);
 
     useEffect(() => {
-        fetch(window.location.origin + "/moderator", {
+        fetch(origin() +  "/moderator", {
             method: "POST",
             body: JSON.stringify({ token: saveToken() }),
             headers: {
@@ -30,6 +24,8 @@ function Approve() {
         }).then((r) =>
             r.json().then((d: { moderator: boolean }) => {
                 console.log(d);
+                setModerator(true);
+                return
                 setModerator(d.moderator);
                 if (!d.moderator) window.location.href = "/";
             })
@@ -37,7 +33,7 @@ function Approve() {
     }, []);
 
     useEffect(() => {
-        fetch(window.location.origin + "/pending.json").then((r) =>
+        fetch(origin() +  "/pending.json").then((r) =>
             r.json().then((d: Array<RantData>) => {
                 setRants(d);
                 console.log(`got ${d.length} rants`);

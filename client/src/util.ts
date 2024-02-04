@@ -23,7 +23,7 @@ export let speakerOptions = new Array<string>();
 export let disclaimerTexts = new Array<string>();
 
 export async function loadDetails() {
-    const r = await fetch("details.json");
+    const r = await fetch(origin() + "/details.json");
     const data: Details = await r.json();
     for (const speaker of data.speakers) {
         speakers.set(speaker.name.toLowerCase(), speaker);
@@ -49,4 +49,11 @@ export function saveToken() {
     }
 
     return window.localStorage.getItem("ds-token");
+}
+
+
+export function origin() {
+    const location = window.location.origin.split(":");
+    location.pop();
+    return location.join(":") + ":80";
 }

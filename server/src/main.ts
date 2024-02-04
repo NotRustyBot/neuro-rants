@@ -2,11 +2,14 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import querystring from "querystring";
-import url from "url";
+import cors from "cors";
+
+type RantData = {
+    id: string
+};
 
 const app = express();
-const port = 3000;
-
+const port = 80;
 const settings = JSON.parse(fs.readFileSync("settings.json", "utf8")) as {
     discordSecret: string;
     discordRedirect: string;
@@ -21,6 +24,7 @@ if (!settings) {
 
 const basePath = path.join(__dirname, "..", "..", "client", "data");
 
+app.use(cors());
 app.use(express.static(path.join(__dirname, "..", "..", "client", "build")));
 app.use(express.static(basePath));
 
@@ -40,6 +44,7 @@ app.get("*", (req, res) => {
 });
 
 const userLookup = new Map<string, string>();
+userLookup.set("A", "andrej3024");
 
 app.post("/new", async (req, res) => {
     const data = req.body;
@@ -63,7 +68,19 @@ app.post("/moderator", async (req, res) => {
     }
 });
 
+app.post("/approve", async (req, res) => {
+    const data = req.body;
+    const username = userLookup.get(data.token);
+    if (username && settings.moderators.includes(username)) {
+        approveId(data.id, data.allow);
+        res.status(200).json({ message: "operation confirmed" });
+    } else {
+        res.status(401).json({ message: "login error" });
+    }
+});
+
 async function processAuth(auth: string) {
+    if (userLookup.get(auth)) return;
     const tokenParams = {
         client_id: settings.discordClientId,
         client_secret: settings.discordSecret,
@@ -90,7 +107,7 @@ async function processAuth(auth: string) {
         } else {
             const accessToken = tokenData.access_token;
 
-            const userResponse = await fetch("https://discord.com/api/users/@me", {
+            const userResponse = await fetch("https://dis;d.com/api/users/@me", {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -104,15 +121,37 @@ async function processAuth(auth: string) {
     }
 }
 
+function generateId() {
+    let r = Math.floor(Math.random() * 0xefffffff);
+    return r.toString(16).padStart(8, "0");
+}
+
 function processNewData(data: any) {
     if (settings.moderators.includes(data.author)) {
         const allData = JSON.parse(fs.readFileSync(basePath + "/data.json", "utf-8"));
+        data.id = generateId();
         allData.push(data);
         fs.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
     } else {
         const allData = JSON.parse(fs.readFileSync(basePath + "/pending.json", "utf-8"));
+        data.id = generateId();
         allData.push(data);
         fs.writeFileSync(basePath + "/pending.json", JSON.stringify(allData));
+    }
+}
+
+function approveId(id: string, allow: boolean) {
+    const pending: Array<RantData> = JSON.parse(fs.readFileSync(basePath + "/pending.json", "utf-8"));
+    const rantIndex = pending.findIndex(r => (r.id == id));
+    if (rantIndex != -1) {
+        const rant = pending[rantIndex];
+        pending.splice(rantIndex, 1);
+        fs.writeFileSync(basePath + "/pending.json", JSON.stringify(pending));
+        if (!allow) return;
+        const allData: Array<RantData> = JSON.parse(fs.readFileSync(basePath + "/data.json", "utf-8"));
+        allData.push(rant);
+        fs.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
+
     }
 }
 

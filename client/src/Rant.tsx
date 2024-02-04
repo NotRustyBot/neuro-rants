@@ -3,6 +3,10 @@ import { RantData } from "./App";
 import { RantHead } from "./RantHead";
 import { RantLine } from "./RantLine";
 import { headColor, headColorDark } from "./style";
+import IconedButton from "./IconedButton";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { Divider } from "./Divider";
+import { origin, saveToken } from "./util";
 
 type Params = {
     rant: RantData;
@@ -11,6 +15,7 @@ type Params = {
 
 export function Rant(params: Params) {
     const [hover, setHover] = useState(false);
+    const [approved, setApproved] = useState(undefined as boolean | undefined);
     const rant = params.rant;
     return (
         <div
@@ -53,14 +58,46 @@ export function Rant(params: Params) {
                     “
                 </div>
                 <div
-                style={{
-                    position: "relative"
-                }}
+                    style={{
+                        position: "relative"
+                    }}
                 >
-                {rant.text.map((t) => (
-                    <RantLine speaker={t.speaker} text={t.text} />
-                ))}
+                    {rant.text.map((t) => (
+                        <RantLine speaker={t.speaker} text={t.text} />
+                    ))}
                 </div>
+                {
+                    params.approvable && approved == undefined &&
+                    <div
+                        style={{ marginTop: 10 }}
+                    >
+                        <Divider />
+                        <IconedButton text="Approve" icon={faCheck} baseColor="#226622" color="#44aa44" action={() => {
+                            fetch(origin() + "/approve", {
+                                method: "POST",
+                                body: JSON.stringify({ token: saveToken(), id: rant.id, allow: true }),
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }).then(r => {
+                                setApproved(true);
+                            })
+                        }} />
+                    </div>
+                }
+                {
+                    params.approvable && approved != undefined &&
+                    <div
+                        style={{
+                            marginTop: 10,
+                            color: approved ? "#669966" : "#996666"
+                        }}
+                    >
+                        {
+                            approved ? "Approved" : "Denied"
+                        }
+                    </div>
+                }
             </div>
         </div>
     );
