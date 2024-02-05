@@ -53,7 +53,6 @@ export function saveToken() {
 
 
 export function origin() {
-    const location = window.location.origin.split(":");
-    location.pop();
-    return location.join(":") + ":80";
+    const location = window.location.origin;
+    return location;
 }

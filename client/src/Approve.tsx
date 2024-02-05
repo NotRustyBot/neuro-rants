@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { Rant } from "./Rant";
-import { pageBg } from "./style";
+import { headColor, pageBg } from "./style";
 import { origin, saveToken } from "./util";
 import { RantData } from "./App";
 
@@ -15,7 +15,7 @@ function Approve() {
     const [moderator, setModerator] = useState(undefined as undefined | boolean);
 
     useEffect(() => {
-        fetch(origin() +  "/moderator", {
+        fetch(origin() + "/moderator", {
             method: "POST",
             body: JSON.stringify({ token: saveToken() }),
             headers: {
@@ -24,8 +24,6 @@ function Approve() {
         }).then((r) =>
             r.json().then((d: { moderator: boolean }) => {
                 console.log(d);
-                setModerator(true);
-                return
                 setModerator(d.moderator);
                 if (!d.moderator) window.location.href = "/";
             })
@@ -33,7 +31,7 @@ function Approve() {
     }, []);
 
     useEffect(() => {
-        fetch(origin() +  "/pending.json").then((r) =>
+        fetch(origin() + "/pending.json").then((r) =>
             r.json().then((d: Array<RantData>) => {
                 setRants(d);
                 console.log(`got ${d.length} rants`);
@@ -61,6 +59,15 @@ function Approve() {
                         flexDirection: "column",
                     }}
                 >
+                    <span
+                        style={{
+                            color: "#ffffff",
+                            padding: 5,
+                            background: headColor
+                        }}
+                    >
+                        {rants.length} rants to be approved
+                    </span>
                     {rants.map((r) => (
                         <Rant rant={r} approvable={true} />
                     ))}

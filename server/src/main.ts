@@ -107,7 +107,7 @@ async function processAuth(auth: string) {
         } else {
             const accessToken = tokenData.access_token;
 
-            const userResponse = await fetch("https://dis;d.com/api/users/@me", {
+            const userResponse = await fetch("https://discord.com/api/users/@me", {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },

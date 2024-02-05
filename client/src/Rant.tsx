@@ -4,13 +4,13 @@ import { RantHead } from "./RantHead";
 import { RantLine } from "./RantLine";
 import { headColor, headColorDark } from "./style";
 import IconedButton from "./IconedButton";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCropSimple, faCross, faCrosshairs, faTrash, faX } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
 import { origin, saveToken } from "./util";
 
 type Params = {
     rant: RantData;
-    approvable?: boolean
+    approvable?: boolean;
 };
 
 export function Rant(params: Params) {
@@ -52,52 +52,75 @@ export function Rant(params: Params) {
                         left: -5,
                         fontFamily: "Arial",
                         color: headColorDark,
-                        textShadow: "3px 3px 0px #ffffff33"
+                        textShadow: "3px 3px 0px #ffffff33",
                     }}
                 >
                     “
                 </div>
                 <div
                     style={{
-                        position: "relative"
+                        position: "relative",
                     }}
                 >
                     {rant.text.map((t) => (
                         <RantLine speaker={t.speaker} text={t.text} />
                     ))}
                 </div>
-                {
-                    params.approvable && approved == undefined &&
-                    <div
-                        style={{ marginTop: 10 }}
-                    >
+                {params.approvable && approved == undefined && (
+                    <div style={{ marginTop: 10 }}>
                         <Divider />
-                        <IconedButton text="Approve" icon={faCheck} baseColor="#226622" color="#44aa44" action={() => {
-                            fetch(origin() + "/approve", {
-                                method: "POST",
-                                body: JSON.stringify({ token: saveToken(), id: rant.id, allow: true }),
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            }).then(r => {
-                                setApproved(true);
-                            })
-                        }} />
+                        <div style={{ marginTop: 10, display: "flex" }}>
+                            <IconedButton
+                                text="Approve"
+                                icon={faCheck}
+                                baseColor="#226622"
+                                color="#44aa44"
+                                action={() => {
+                                    fetch(origin() + "/approve", {
+                                        method: "POST",
+                                        body: JSON.stringify({ token: saveToken(), id: rant.id, allow: true }),
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                    }).then((r) => {
+                                        setApproved(true);
+                                    });
+                                }}
+                            />
+                            <IconedButton
+                                text="Deny"
+                                icon={faTrash}
+                                baseColor="#662222"
+                                color="#aa4444"
+                                action={() => {
+                                    fetch(origin() + "/approve", {
+                                        method: "POST",
+                                        body: JSON.stringify({ token: saveToken(), id: rant.id, allow: true }),
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                    }).then((r) => {
+                                        if (r.status == 200) {
+                                            setApproved(true);
+                                        } else {
+                                            if (r.status == 401) alert("Authentication error");
+                                        }
+                                    });
+                                }}
+                            />
+                        </div>
                     </div>
-                }
-                {
-                    params.approvable && approved != undefined &&
+                )}
+                {params.approvable && approved != undefined && (
                     <div
                         style={{
                             marginTop: 10,
-                            color: approved ? "#669966" : "#996666"
+                            color: approved ? "#669966" : "#996666",
                         }}
                     >
-                        {
-                            approved ? "Approved" : "Denied"
-                        }
+                        {approved ? "Approved" : "Denied"}
                     </div>
-                }
+                )}
             </div>
         </div>
     );

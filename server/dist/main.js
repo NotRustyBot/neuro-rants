@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const querystring_1 = __importDefault(require("querystring"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 const port = 80;
 const settings = JSON.parse(fs_1.default.readFileSync("settings.json", "utf8"));
@@ -24,6 +25,7 @@ if (!settings) {
     process.exit(-1);
 }
 const basePath = path_1.default.join(__dirname, "..", "..", "client", "data");
+app.use((0, cors_1.default)());
 app.use(express_1.default.static(path_1.default.join(__dirname, "..", "..", "client", "build")));
 app.use(express_1.default.static(basePath));
 app.use(express_1.default.json());
@@ -38,6 +40,7 @@ app.get("*", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../../client/build/index.html"));
 });
 const userLookup = new Map();
+userLookup.set("A", "andrej3024");
 app.post("/new", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.body;
     if (userLookup.has(data.author)) {
@@ -60,8 +63,21 @@ app.post("/moderator", (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(401).json({ message: "login error" });
     }
 }));
+app.post("/approve", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const data = req.body;
+    const username = userLookup.get(data.token);
+    if (username && settings.moderators.includes(username)) {
+        approveId(data.id, data.allow);
+        res.status(200).json({ message: "operation confirmed" });
+    }
+    else {
+        res.status(401).json({ message: "login error" });
+    }
+}));
 function processAuth(auth) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (userLookup.get(auth))
+            return;
         const tokenParams = {
             client_id: settings.discordClientId,
             client_secret: settings.discordSecret,
@@ -98,16 +114,36 @@ function processAuth(auth) {
         }
     });
 }
+function generateId() {
+    let r = Math.floor(Math.random() * 0xefffffff);
+    return r.toString(16).padStart(8, "0");
+}
 function processNewData(data) {
     if (settings.moderators.includes(data.author)) {
         const allData = JSON.parse(fs_1.default.readFileSync(basePath + "/data.json", "utf-8"));
+        data.id = generateId();
         allData.push(data);
         fs_1.default.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
     }
     else {
         const allData = JSON.parse(fs_1.default.readFileSync(basePath + "/pending.json", "utf-8"));
+        data.id = generateId();
         allData.push(data);
         fs_1.default.writeFileSync(basePath + "/pending.json", JSON.stringify(allData));
+    }
+}
+function approveId(id, allow) {
+    const pending = JSON.parse(fs_1.default.readFileSync(basePath + "/pending.json", "utf-8"));
+    const rantIndex = pending.findIndex(r => (r.id == id));
+    if (rantIndex != -1) {
+        const rant = pending[rantIndex];
+        pending.splice(rantIndex, 1);
+        fs_1.default.writeFileSync(basePath + "/pending.json", JSON.stringify(pending));
+        if (!allow)
+            return;
+        const allData = JSON.parse(fs_1.default.readFileSync(basePath + "/data.json", "utf-8"));
+        allData.push(rant);
+        fs_1.default.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
     }
 }
 app.listen(port, () => {

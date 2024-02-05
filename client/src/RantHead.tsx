@@ -1,5 +1,6 @@
 import { RantData } from "./App";
 import { Tag } from "./Tag";
+import { accentColor } from "./style";
 import { YYMMDD } from "./util";
 
 type Params = {
@@ -27,7 +28,18 @@ export function RantHead(params: Params) {
                 >
                     {dateString}
                 </span>
-
+                <span
+                    style={{
+                        color: "#ffffff",
+                        padding: 3,
+                        background: "#222222",
+                        borderRadius: 3,
+                        marginLeft: 20
+    
+                    }}
+                >
+                    by {rant.author}
+                </span>
                 <div
                     style={{
                         display: "flex",
