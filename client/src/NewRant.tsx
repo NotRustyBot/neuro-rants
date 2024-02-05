@@ -4,16 +4,19 @@ import { Rant } from "./Rant";
 import { NewRantLine } from "./NewRantLine";
 import { inputStyle, pageBg } from "./style";
 import { RantData } from "./App";
-import { disclaimerTexts, origin, saveToken, speakerOptions } from "./util";
+import { YYYYMMDD, allTags, disclaimerTexts, origin, saveToken, speakerOptions } from "./util";
 import IconedButton from "./IconedButton";
 import { faCheck, faLock, faPlus, faRepublican, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
 import { useAuthContext } from "./AuthContext";
+import { Tag } from "./Tag";
 
 function NewRant() {
-    const [newRant, setNewRant] = useState({ date: 0, tags: [], text: [{ speaker: speakerOptions[0], text: "" }], author: "", id: undefined } as RantData);
+    const [newRant, setNewRant] = useState({ date: Date.now(), tags: [], text: [{ speaker: "", text: "" }], author: "", id: undefined } as RantData);
     const { authToken, updateAuthToken } = useAuthContext();
     const post = () => {
+        const rantToSend = { ...newRant };
+        rantToSend.tags = rantToSend.tags.concat(rantToSend.text.map((l) => l.speaker));
         const unauth = () => {
             window.open("/login");
             const interval = setInterval(() => {
@@ -27,7 +30,7 @@ function NewRant() {
         if (authToken) {
             fetch(origin() + "/new", {
                 method: "POST",
-                body: JSON.stringify({ ...newRant, author: authToken }),
+                body: JSON.stringify({ ...rantToSend, author: authToken }),
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -62,6 +65,41 @@ function NewRant() {
                     flexDirection: "column",
                 }}
             >
+                <div style={{ display: "flex", color: "#fff", gap: 5 }}>
+                    date
+                    <input
+                        value={YYYYMMDD(new Date(newRant.date))}
+                        onChange={(v) => {
+                            newRant.date = new Date(v.target.value).valueOf();
+                            setNewRant({ ...newRant });
+                        }}
+                        style={{ ...inputStyle, colorScheme: "dark" }}
+                        type="date"
+                    />
+                </div>
+                <div
+                    style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                    }}
+                >
+                    {allTags().map((t) => (
+                        <Tag
+                            tag={t}
+                            key={t}
+                            selected={newRant.tags}
+                            click={() => {
+                                const index = newRant.tags.findIndex((a) => a == t);
+                                if (index == -1) {
+                                    newRant.tags.push(t);
+                                } else {
+                                    newRant.tags.splice(index, 1);
+                                }
+                                setNewRant({ ...newRant });
+                            }}
+                        />
+                    ))}
+                </div>
                 {newRant.text.map((rant, index) => (
                     <NewRantLine
                         rantLine={rant}

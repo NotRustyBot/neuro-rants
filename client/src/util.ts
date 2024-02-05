@@ -1,7 +1,8 @@
 import { updateAuthToken } from "./AuthContext";
 
-export function YYMMDD(date: Date) {
-    const year = date.getFullYear().toString().slice(-2);
+export function YYYYMMDD(date: Date) {
+        
+    const year = date.getFullYear().toString();
     const month = ("0" + (date.getMonth() + 1)).slice(-2);
     const day = ("0" + date.getDate()).slice(-2);
     return `${year}-${month}-${day}`;
@@ -10,6 +11,7 @@ export function YYMMDD(date: Date) {
 type Details = {
     speakers: Array<Speaker>;
     disclaimer: Array<string>;
+    tags: Array<string>;
 };
 
 type Speaker = {
@@ -21,6 +23,7 @@ let speakers = new Map<string, Speaker>();
 export let speakerOptions = new Array<string>();
 
 export let disclaimerTexts = new Array<string>();
+export let tags = new Array<string>();
 
 export async function loadDetails() {
     const r = await fetch(origin() + "/details.json");
@@ -30,6 +33,8 @@ export async function loadDetails() {
         speakerOptions.push(speaker.name);
     }
     disclaimerTexts = data.disclaimer;
+    tags = data.tags;
+    console.log(data);
 }
 
 export function speakerColor(speaker: string) {
@@ -51,6 +56,9 @@ export function saveToken() {
     return window.localStorage.getItem("ds-token");
 }
 
+export function allTags() {
+    return tags;
+}
 
 export function origin() {
     const location = window.location.origin;

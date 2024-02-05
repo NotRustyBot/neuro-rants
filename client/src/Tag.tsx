@@ -1,6 +1,6 @@
 import { tagColor } from "./util";
 
-export function Tag(params: { tag: string }) {
+export function Tag(params: { tag: string; selected?: Array<string>; click?: () => void }) {
     return (
         <div
             style={{
@@ -12,8 +12,12 @@ export function Tag(params: { tag: string }) {
                 borderLeftWidth: 5,
                 borderLeftColor: tagColor(params.tag),
                 borderLeftStyle: "solid",
-                color: tagColor(params.tag)
+                color: tagColor(params.tag),
+                opacity: params.selected && !params.selected.includes(params.tag) ? 0.5 : 1,
+                cursor: params.click ? "pointer" : "none",
+                flexShrink: 0
             }}
+            onClick={params.click}
         >
             {params.tag}
         </div>

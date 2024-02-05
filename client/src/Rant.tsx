@@ -95,13 +95,13 @@ export function Rant(params: Params) {
                                 action={() => {
                                     fetch(origin() + "/approve", {
                                         method: "POST",
-                                        body: JSON.stringify({ token: saveToken(), id: rant.id, allow: true }),
+                                        body: JSON.stringify({ token: saveToken(), id: rant.id, allow: false }),
                                         headers: {
                                             "Content-Type": "application/json",
                                         },
                                     }).then((r) => {
                                         if (r.status == 200) {
-                                            setApproved(true);
+                                            setApproved(false);
                                         } else {
                                             if (r.status == 401) alert("Authentication error");
                                         }

@@ -5,7 +5,7 @@ import querystring from "querystring";
 import cors from "cors";
 
 type RantData = {
-    id: string
+    id: string;
 };
 
 const app = express();
@@ -15,6 +15,7 @@ const settings = JSON.parse(fs.readFileSync("settings.json", "utf8")) as {
     discordRedirect: string;
     discordClientId: string;
     moderators: Array<string>;
+    backup: Array<string>;
 };
 
 if (!settings) {
@@ -22,8 +23,32 @@ if (!settings) {
     process.exit(-1);
 }
 
+function YYYYMMDD(date: Date) {
+    const year = date.getFullYear().toString();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+}
+
+function backup() {
+    const directory = YYYYMMDD(new Date());
+    console.log(`creating backup ${directory}`);
+    for (const backupDir of settings.backup) {
+        const destination = path.join(backupDir, directory);
+        if (!fs.existsSync(destination)) {
+            fs.mkdirSync(destination, { recursive: true });
+        }
+        fs.copyFileSync(basePath + "/data.json", path.join(destination, "data.json"));
+        fs.copyFileSync(basePath + "/pending.json", path.join(destination, "pending.json"));
+    }
+}
+
 const basePath = path.join(__dirname, "..", "..", "client", "data");
 
+backup();
+setInterval(() => {
+    backup();
+}, 24 * 60 * 60 * 1000);
 app.use(cors());
 app.use(express.static(path.join(__dirname, "..", "..", "client", "build")));
 app.use(express.static(basePath));
@@ -44,7 +69,6 @@ app.get("*", (req, res) => {
 });
 
 const userLookup = new Map<string, string>();
-userLookup.set("A", "andrej3024");
 
 app.post("/new", async (req, res) => {
     const data = req.body;
@@ -63,6 +87,16 @@ app.post("/moderator", async (req, res) => {
     const username = userLookup.get(data.token);
     if (username) {
         res.status(200).json({ moderator: settings.moderators.includes(username) });
+    } else {
+        res.status(401).json({ message: "login error" });
+    }
+});
+
+app.post("/nick", async (req, res) => {
+    const data = req.body;
+    const username = userLookup.get(data.token);
+    if (username) {
+        res.status(200).json({ nick: username });
     } else {
         res.status(401).json({ message: "login error" });
     }
@@ -142,7 +176,7 @@ function processNewData(data: any) {
 
 function approveId(id: string, allow: boolean) {
     const pending: Array<RantData> = JSON.parse(fs.readFileSync(basePath + "/pending.json", "utf-8"));
-    const rantIndex = pending.findIndex(r => (r.id == id));
+    const rantIndex = pending.findIndex((r) => r.id == id);
     if (rantIndex != -1) {
         const rant = pending[rantIndex];
         pending.splice(rantIndex, 1);
@@ -151,7 +185,6 @@ function approveId(id: string, allow: boolean) {
         const allData: Array<RantData> = JSON.parse(fs.readFileSync(basePath + "/data.json", "utf-8"));
         allData.push(rant);
         fs.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
-
     }
 }
 

@@ -1,7 +1,7 @@
 import { RantData } from "./App";
 import { Tag } from "./Tag";
 import { accentColor } from "./style";
-import { YYMMDD } from "./util";
+import { YYYYMMDD } from "./util";
 
 type Params = {
     rant: RantData;
@@ -9,7 +9,7 @@ type Params = {
 
 export function RantHead(params: Params) {
     const rant = params.rant;
-    const dateString = YYMMDD(new Date(rant.date * 1000));
+    const dateString = YYYYMMDD(new Date(rant.date));
     return (
         <div
                 style={{
