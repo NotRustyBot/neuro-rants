@@ -1,4 +1,5 @@
 import express from "express";
+import https from 'https';
 import path from "path";
 import fs from "fs";
 import querystring from "querystring";
@@ -8,15 +9,27 @@ type RantData = {
     id: string;
 };
 
-const app = express();
-const port = 80;
 const settings = JSON.parse(fs.readFileSync("settings.json", "utf8")) as {
     discordSecret: string;
     discordRedirect: string;
     discordClientId: string;
+    key: string;
+    cert: string;
+    port: string;
     moderators: Array<string>;
     backup: Array<string>;
 };
+
+const privateKey = fs.readFileSync(settings.key, 'utf8');
+const certificate = fs.readFileSync(settings.cert, 'utf8');
+
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+};
+
+const app = express();
+const httpsServer = https.createServer(credentials, app);
 
 if (!settings) {
     console.log("settings.json not found. Stopping...");
@@ -188,6 +201,6 @@ function approveId(id: string, allow: boolean) {
     }
 }
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+httpsServer.listen(settings.port, () => {
+    console.log(`Server is running at http://localhost:${settings.port}`);
 });
