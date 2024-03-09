@@ -1,5 +1,5 @@
 import express from "express";
-import https from 'https';
+import https from "https";
 import path from "path";
 import fs from "fs";
 import querystring from "querystring";
@@ -20,16 +20,18 @@ const settings = JSON.parse(fs.readFileSync("settings.json", "utf8")) as {
     backup: Array<string>;
 };
 
-const privateKey = fs.readFileSync(settings.key, 'utf8');
-const certificate = fs.readFileSync(settings.cert, 'utf8');
+let credentials = undefined;
+if (settings.key && settings.cert) {
+    const privateKey = fs.readFileSync(settings.key, "utf8");
+    const certificate = fs.readFileSync(settings.cert, "utf8");
 
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-};
+    credentials = {
+        key: privateKey,
+        cert: certificate,
+    };
+}
 
 const app = express();
-const httpsServer = https.createServer(credentials, app);
 
 if (!settings) {
     console.log("settings.json not found. Stopping...");
@@ -88,6 +90,18 @@ app.post("/new", async (req, res) => {
     if (userLookup.has(data.author)) {
         data.author = userLookup.get(data.author);
         processNewData(data);
+        res.status(200).json({ message: "Data received successfully" });
+        return;
+    } else {
+        res.status(401).json({ message: "not authed" });
+    }
+});
+
+app.post("/modify", async (req, res) => {
+    const data = req.body;
+    const mod = userLookup.get(data.moderator);
+    if (mod && settings.moderators.includes(mod)) {
+        modifyId(data);
         res.status(200).json({ message: "Data received successfully" });
         return;
     } else {
@@ -201,6 +215,24 @@ function approveId(id: string, allow: boolean) {
     }
 }
 
-httpsServer.listen(settings.port, () => {
-    console.log(`Server is running at http://localhost:${settings.port}`);
-});
+function modifyId(data: any) {
+    if (settings.moderators.includes(data.author)) {
+        const allData = JSON.parse(fs.readFileSync(basePath + "/data.json", "utf-8")) as Array<{ id: string }>;
+        const idx = allData.findIndex((f) => {
+            f.id == data.id;
+        });
+        allData[idx] = data;
+        fs.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
+    }
+}
+
+if (credentials) {
+    const httpsServer = https.createServer(credentials, app);
+    httpsServer.listen(settings.port, () => {
+        console.log(`Server is running at http://localhost:${settings.port}`);
+    });
+} else {
+    app.listen(settings.port, () => {
+        console.log(`Server is running at http://localhost:${settings.port}`);
+    });
+}

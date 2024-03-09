@@ -14,7 +14,7 @@ export function Tag(params: { tag: string; selected?: Array<string>; click?: () 
                 borderLeftStyle: "solid",
                 color: tagColor(params.tag),
                 opacity: params.selected && !params.selected.includes(params.tag) ? 0.5 : 1,
-                cursor: params.click ? "pointer" : "none",
+                cursor: params.click ? "pointer" : "default",
                 flexShrink: 0
             }}
             onClick={params.click}

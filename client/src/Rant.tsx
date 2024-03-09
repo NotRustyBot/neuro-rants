@@ -4,19 +4,24 @@ import { RantHead } from "./RantHead";
 import { RantLine } from "./RantLine";
 import { headColor, headColorDark } from "./style";
 import IconedButton from "./IconedButton";
-import { faCheck, faCropSimple, faCross, faCrosshairs, faTrash, faX } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCropSimple, faCross, faCrosshairs, faPen, faTrash, faX } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
 import { origin, saveToken } from "./util";
+import { useNavigate } from "react-router-dom";
+import { Navigation } from "./Navigation";
 
 type Params = {
     rant: RantData;
     approvable?: boolean;
+    editable?: boolean;
 };
 
 export function Rant(params: Params) {
     const [hover, setHover] = useState(false);
     const [approved, setApproved] = useState(undefined as boolean | undefined);
+    const navigate = useNavigate();
     const rant = params.rant;
+
     return (
         <div
             style={{
@@ -119,6 +124,14 @@ export function Rant(params: Params) {
                         }}
                     >
                         {approved ? "Approved" : "Denied"}
+                    </div>
+                )}
+                {params.editable && (
+                    <div style={{ marginTop: 10 }}>
+                        <Divider />
+                        <IconedButton text="Edit" icon={faPen} baseColor="#334499" color="#5588ff" action={() => {
+                            navigate(`/edit?${rant.id}`)
+                        }} />
                     </div>
                 )}
             </div>

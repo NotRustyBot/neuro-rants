@@ -27,6 +27,10 @@ const router = createBrowserRouter([
                 element: <NewRant />,
             },
             {
+                path: "/edit",
+                element: <NewRant  />,
+            },
+            {
                 path: "/callback",
                 element: <AuthCallback />,
             },

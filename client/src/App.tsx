@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Rant } from "./Rant";
 import { pageBg } from "./style";
-import { origin } from "./util";
+import { origin, saveToken } from "./util";
+import { useAuthContext } from "./AuthContext";
 
 export type RantData = {
     date: number;
     text: Array<RantLineData>;
     tags: Array<string>;
-    author: string,
-    id: string | undefined
+    author: string;
+    id: string | undefined;
 };
 
 export type RantLineData = {
@@ -19,6 +20,7 @@ export type RantLineData = {
 
 function App() {
     const [rants, setRants] = useState([] as Array<RantData>);
+    const { moderator } = useAuthContext();
 
     useEffect(() => {
         fetch(origin() + "/data.json").then((r) =>
@@ -49,7 +51,7 @@ function App() {
                 }}
             >
                 {rants.map((r) => (
-                    <Rant rant={r} />
+                    <Rant rant={r} editable={moderator} />
                 ))}
             </div>
         </div>

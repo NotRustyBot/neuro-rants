@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
-import { Rant } from "./Rant";
 import { NewRantLine } from "./NewRantLine";
 import { inputStyle, pageBg } from "./style";
 import { RantData } from "./App";
 import { YYYYMMDD, allTags, disclaimerTexts, origin, saveToken, speakerOptions } from "./util";
 import IconedButton from "./IconedButton";
-import { faCheck, faLock, faPlus, faRepublican, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faLock, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
 import { useAuthContext } from "./AuthContext";
 import { Tag } from "./Tag";
+import { useNavigation } from "react-router-dom";
 
 function NewRant() {
     const [newRant, setNewRant] = useState({ date: Date.now(), tags: [], text: [{ speaker: "", text: "" }], author: "", id: undefined } as RantData);

@@ -8,9 +8,8 @@ import { faArrowRight, faLock } from "@fortawesome/free-solid-svg-icons";
 import { updateAuthToken, useAuthContext } from "./AuthContext";
 
 export function Navigation() {
-    const [moderator, setModerator] = useState(undefined as undefined | boolean);
     const [nick, setNick] = useState(undefined as undefined | string);
-    const { authToken } = useAuthContext();
+    const { authToken, moderator, updateModerator } = useAuthContext();
     useEffect(() => {
         fetch(origin() + "/nick", {
             method: "POST",
@@ -33,7 +32,7 @@ export function Navigation() {
             },
         }).then((r) =>
             r.json().then((d: { moderator: boolean }) => {
-                setModerator(d.moderator);
+                updateModerator(d.moderator);
             })
         );
     }, []);
