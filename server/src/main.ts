@@ -101,6 +101,7 @@ app.post("/modify", async (req, res) => {
     const data = req.body;
     const mod = userLookup.get(data.moderator);
     if (mod && settings.moderators.includes(mod)) {
+        delete data.moderator;
         modifyId(data);
         res.status(200).json({ message: "Data received successfully" });
         return;
