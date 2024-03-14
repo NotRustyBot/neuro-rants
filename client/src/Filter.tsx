@@ -1,6 +1,8 @@
 import { Tag } from "./Tag";
 import { headColor, headColorDark } from "./style";
 import { speakerOptions, tags } from "./util";
+import IconedButton from "./IconedButton";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
 type Params = {
     tags: Array<string>;
@@ -17,9 +19,26 @@ export function Filter(params: Params) {
                 background: headColor,
             }}
         >
-            <b style={{
-                marginBottom: 10
-            }}>Filter by tags</b>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <b
+                    style={{
+                        marginBottom: 10,
+                    }}
+                >
+                    Filter by tags
+                </b>
+                <IconedButton
+                    icon={faFilter}
+                    text={params.tags.length == 0 ? "Enable All" : "Disable All"}
+                    action={() => {
+                        if (params.tags.length == 0) {
+                            params.setTags([...tags, ...speakerOptions]);
+                        } else {
+                            params.setTags([]);
+                        }
+                    }}
+                />
+            </div>
             <div style={{ display: "flex", flexWrap: "wrap" }}>
                 <br />
                 {[...tags, ...speakerOptions].map((t) => (
