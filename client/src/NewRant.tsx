@@ -49,7 +49,7 @@ function NewRant(params: Params) {
             if (params.edit) {
                 fetch(origin() + "/modify", {
                     method: "POST",
-                    body: JSON.stringify({ ...rantToSend }),
+                    body: JSON.stringify({ ...rantToSend, moderator: authToken }),
                     headers: {
                         "Content-Type": "application/json",
                     },

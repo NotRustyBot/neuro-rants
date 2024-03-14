@@ -218,9 +218,8 @@ function approveId(id: string, allow: boolean) {
 function modifyId(data: any) {
     if (settings.moderators.includes(data.author)) {
         const allData = JSON.parse(fs.readFileSync(basePath + "/data.json", "utf-8")) as Array<{ id: string }>;
-        const idx = allData.findIndex((f) => {
-            f.id == data.id;
-        });
+        const idx = allData.findIndex((f) => f.id == data.id);
+        console.log(idx);
         allData[idx] = data;
         fs.writeFileSync(basePath + "/data.json", JSON.stringify(allData));
     }

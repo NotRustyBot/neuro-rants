@@ -12,17 +12,22 @@ export function RantHead(params: Params) {
     const dateString = YYYYMMDD(new Date(rant.date));
     return (
         <div
+            style={{
+                padding: 20,
+            }}
+        >
+            <div
                 style={{
                     display: "flex",
                     alignItems: "center",
-                    padding: 20,
+                    justifyContent: "space-between",
                 }}
             >
                 <span
                     style={{
                         color: "#ffffff",
-                        padding: 3,
                         background: "#222222",
+                        padding: 3,
                         borderRadius: 3,
                     }}
                 >
@@ -31,28 +36,27 @@ export function RantHead(params: Params) {
                 <span
                     style={{
                         color: "#ffffff",
-                        padding: 3,
                         background: "#222222",
+                        padding: 3,
                         borderRadius: 3,
-                        marginLeft: 20
-    
+                        marginLeft: 20,
                     }}
                 >
                     by {rant.author}
                 </span>
-                <div
-                    style={{
-                        display: "flex",
-                        marginLeft: 10,
-                        gap: 10,
-                        justifyContent: "end",
-                        flexGrow: 1,
-                    }}
-                >
-                    {rant.tags.map((t) => (
-                        <Tag tag={t} />
-                    ))}
-                </div>
             </div>
+            <div
+                style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    marginTop: 10,
+                    flexGrow: 1,
+                }}
+            >
+                {rant.tags.map((t) => (
+                    <Tag tag={t} />
+                ))}
+            </div>
+        </div>
     );
 }

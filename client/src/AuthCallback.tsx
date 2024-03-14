@@ -1,9 +1,15 @@
+import { useEffect } from "react";
 import { pageBg } from "./style";
 import { saveToken } from "./util";
 
 function AuthCallback() {
     const token = saveToken();
-
+    useEffect(() => {
+        if(token)
+        setInterval(() => {
+            window.location.href = "/";
+        }, 500);
+    }, []);
     return (
         <div
             style={{
@@ -28,7 +34,7 @@ function AuthCallback() {
                         color: "#fff",
                     }}
                 >
-                    {token ? "Authorised. You can now close this tab." : "Something went wrong"}
+                    {token ? "Authorised. Redirecting..." : "Something went wrong"}
                 </p>
             </div>
         </div>
