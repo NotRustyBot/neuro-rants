@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { NewRantLine } from "./NewRantLine";
 import { inputStyle, pageBg } from "./style";
@@ -9,10 +9,28 @@ import { faCheck, faLock, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
 import { useAuthContext } from "./AuthContext";
 import { Tag } from "./Tag";
-import { useNavigation } from "react-router-dom";
 
-function NewRant() {
+type Params = {
+    edit: boolean;
+};
+
+function NewRant(params: Params) {
     const [newRant, setNewRant] = useState({ date: Date.now(), tags: [], text: [{ speaker: "", text: "" }], author: "", id: undefined } as RantData);
+
+    useEffect(() => {
+        console.log("yes");
+        if (params.edit) {
+            fetch(origin() + "/data.json").then((r) =>
+                r.json().then((d: Array<RantData>) => {
+                    const id = window.location.search.replace("?","");
+                    console.log(id);
+                    const found = d.find((a) => a.id == id);
+                    if (found) setNewRant(found);
+                })
+            );
+        }
+    }, [params.edit, window.location.search]);
+
     const { authToken, updateAuthToken } = useAuthContext();
     const post = () => {
         const rantToSend = { ...newRant };
@@ -28,20 +46,37 @@ function NewRant() {
             }, 500);
         };
         if (authToken) {
-            fetch(origin() + "/new", {
-                method: "POST",
-                body: JSON.stringify({ ...rantToSend, author: authToken }),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }).then((r) => {
-                if (r.status == 401) {
-                    updateAuthToken(undefined);
-                    unauth();
-                } else {
-                    window.location.href = "/";
-                }
-            });
+            if (params.edit) {
+                fetch(origin() + "/modify", {
+                    method: "POST",
+                    body: JSON.stringify({ ...rantToSend }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }).then((r) => {
+                    if (r.status == 401) {
+                        updateAuthToken(undefined);
+                        unauth();
+                    } else {
+                        window.location.href = "/";
+                    }
+                });
+            } else {
+                fetch(origin() + "/new", {
+                    method: "POST",
+                    body: JSON.stringify({ ...rantToSend, author: authToken }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }).then((r) => {
+                    if (r.status == 401) {
+                        updateAuthToken(undefined);
+                        unauth();
+                    } else {
+                        window.location.href = "/";
+                    }
+                });
+            }
         } else {
             unauth();
         }

@@ -24,11 +24,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "/new",
-                element: <NewRant />,
+                element: <NewRant edit={false} />,
             },
             {
                 path: "/edit",
-                element: <NewRant  />,
+                element: <NewRant  edit={true} />,
             },
             {
                 path: "/callback",
