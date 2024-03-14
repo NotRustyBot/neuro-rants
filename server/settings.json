@@ -1,7 +1,8 @@
 {
-    "discordSecret": "",
+    "discordSecret": "x2JOfBok4zjfhNUrS3kh5s0s_9-Wk4Kn",
     "discordClientId": "1202277959181021184",
     "discordRedirect": "http://localhost/callback",
-    "moderators": [],
-    "backup": []
+    "moderators": ["andrej3024"],
+    "backup": [],
+    "port":80
 }
