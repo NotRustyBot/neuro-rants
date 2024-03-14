@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Rant } from "./Rant";
 import { pageBg } from "./style";
-import { origin, saveToken } from "./util";
+import { allTags, origin, saveToken, speakerOptions, } from "./util";
 import { useAuthContext } from "./AuthContext";
+import { Filter } from "./Filter";
 
 export type RantData = {
     date: number;
@@ -20,8 +21,10 @@ export type RantLineData = {
 
 function App() {
     const [rants, setRants] = useState([] as Array<RantData>);
+    const [tags, setTags] = useState([...allTags(), ...speakerOptions] as Array<string>);
     const { moderator } = useAuthContext();
-
+    console.log(tags);
+    
     useEffect(() => {
         fetch(origin() + "/data.json").then((r) =>
             r.json().then((d: Array<RantData>) => {
@@ -50,7 +53,8 @@ function App() {
                     flexDirection: "column",
                 }}
             >
-                {rants.map((r) => (
+                <Filter tags={tags} setTags={setTags} />
+                {rants.filter(r => r.tags.some(t => tags.includes(t))).map((r) => (
                     <Rant rant={r} editable={moderator} />
                 ))}
             </div>

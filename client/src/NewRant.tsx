@@ -3,7 +3,7 @@ import "./App.css";
 import { NewRantLine } from "./NewRantLine";
 import { inputStyle, pageBg } from "./style";
 import { RantData } from "./App";
-import { YYYYMMDD, allTags, disclaimerTexts, origin, saveToken, speakerOptions } from "./util";
+import { YYYYMMDD, allTags, disclaimerTexts, origin, saveToken, speakerOptions, tags } from "./util";
 import IconedButton from "./IconedButton";
 import { faCheck, faLock, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Divider } from "./Divider";
@@ -34,6 +34,7 @@ function NewRant(params: Params) {
     const { authToken, updateAuthToken } = useAuthContext();
     const post = () => {
         const rantToSend = { ...newRant };
+        rantToSend.tags = rantToSend.tags.filter(a => tags.includes(a));
         rantToSend.tags = rantToSend.tags.concat(rantToSend.text.map((l) => l.speaker));
         const unauth = () => {
             window.open("/login");
